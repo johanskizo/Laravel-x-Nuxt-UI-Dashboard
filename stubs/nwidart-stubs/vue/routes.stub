@@ -1,0 +1,23 @@
+export default ($STUDLY_NAME$) => [
+	{
+		path: '/module/$LOWER_NAME$',
+		component: () => import('./pages/index.vue'),
+		meta: {
+			permission: '$STUDLY_NAME$.view',
+		}
+	},
+	{
+		path: '/module/$LOWER_NAME$/add',
+		component: () => import('./pages/form.vue'),
+		meta: {
+			permission: '$STUDLY_NAME$.add',
+		}
+	},
+	{
+		path: '/module/$LOWER_NAME$/edit/:id',
+		component: () => import('./pages/form.vue'),
+		meta: {
+			permission: '$STUDLY_NAME$.edit',
+		}
+	}
+];

@@ -1,0 +1,143 @@
+	<template>
+		<DashboardLayout>
+			<template #toolbar>
+				<UDashboardToolbar>
+					<template #left>
+						<UBreadcrumb :items="breadcrumbItems" />
+					</template>
+				</UDashboardToolbar>
+			</template>
+			<template #body>
+				<div class="flex flex-col w-full mx-auto">
+					<UForm @submit="handleSubmit">
+						<UPageCard variant="subtle">
+							<UFormField :label="$t('Name')" name="name" required :error="errors.name?.[0]"
+								class="flex max-sm:flex-col items-start gap-4" :ui="{
+									labelWrapper: 'w-24 shrink-0'
+								}">
+								<UInput :loading="ui.isLoadingData" v-model="form.name" type="name" class="w-100" />
+							</UFormField>
+						</UPageCard>
+						<div class="flex items-center justify-end gap-3 py-4">
+							<UButton :label="$t('Back')" color="neutral" variant="outline" icon="i-lucide-arrow-left"
+								@click="$router.back()" />
+							<UButton type="submit" :label="$t('Save')" icon="i-lucide-save" color="primary" :loading="ui.isLoading" />
+						</div>
+					</UForm>
+				</div>
+			</template>
+		</DashboardLayout>
+	</template>
+
+<script>
+import instance from '../../../../../resources/js/src/network/instance';
+import DashboardLayout from '../../../../../resources/js/src/components/DashboardLayout.vue';
+
+export default {
+	components: {
+		DashboardLayout,
+	},
+	setup: () => {
+		const toast = useToast();
+
+		return { toast }
+	},
+	data: () => ({
+		id: null,
+		breadcrumbItems: [
+			{
+				label: 'Module',
+				icon: 'i-lucide-box',
+				to: '/module'
+			},
+			{
+				label: '$STUDLY_NAME$',
+				icon: 'i-lucide-square-chevron-right',
+				to: '/module/$LOWER_NAME$'
+			},
+		],
+		ui: {
+			isLoadingData: false,
+			isLoading: false,
+		}
+		form: {
+			name: '',
+		},
+		errors: {},
+	}),
+	mounted() {
+		if (this.$route.params.id) {
+			this.id = this.$route.params.id;
+			this.fetchData();
+		} else {
+			this.breadcrumbItems = this.breadcrumbItems.slice(0, 2);
+			this.breadcrumbItems.push({
+				label: this.$t('Add Data'),
+				icon: 'i-lucide-pencil'
+			});
+		}
+	},
+	methods: {
+		async fetchData() {
+			this.ui.isLoadingData = true;
+			this.errors = {};
+			try {
+				const { data: response } = await instance.get(`/$LOWER_NAME$/show/${this.id}`);
+				this.form = response.data;
+				this.breadcrumbItems = this.breadcrumbItems.slice(0, 2);
+				this.breadcrumbItems.push({
+					label: response.data.name,
+					icon: 'i-lucide-pencil'
+				});
+			} catch (error) {
+				if (error.status === 422) {
+					this.errors = error.response.data.errors;
+				} else {
+					this.toast.add({
+						title: 'Error',
+						description: error.response?.data?.message,
+						icon: 'i-lucide-ban',
+						color: 'error'
+					});
+				}
+			} finally {
+				this.ui.isLoadingData = false;
+			}
+		},
+		async handleSubmit() {
+			this.ui.isLoading = true;
+			this.errors = {};
+			const url = this.id
+				? `/$LOWER_NAME$/update/${this.id}`
+				: '/$LOWER_NAME$/store';
+
+			const method = this.id ? 'put' : 'post';
+			try {
+				const { data: response } = await instance[method](url, this.form);
+
+				this.toast.add({
+					title: this.$t('Success'),
+					description: response.message,
+					icon: 'i-lucide-circle-check',
+					color: 'success'
+				});
+
+				this.$router.push('/module/$LOWER_NAME$');
+			} catch (error) {
+				if (error.status === 422) {
+					this.errors = error.response.data.errors;
+				} else {
+					this.toast.add({
+						title: 'Error',
+						description: error.response?.data?.message,
+						icon: 'i-lucide-ban',
+						color: 'error'
+					});
+				}
+			} finally {
+				this.ui.isLoading = false;
+			}
+		}
+	}
+}
+</script>

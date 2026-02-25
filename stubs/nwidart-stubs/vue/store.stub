@@ -1,0 +1,19 @@
+import { defineStore } from 'pinia';
+
+export const use$STUDLY_NAME$Store = defineStore('$LOWER_NAME$', {
+	state: () => ({
+
+	}),
+	actions: {
+		setData(value) {
+
+		},
+		updateData(value) {
+
+		},
+		deleteData(value) {
+
+		}
+	},
+	persist: true
+});

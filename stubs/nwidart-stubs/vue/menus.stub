@@ -1,0 +1,8 @@
+export default ($STUDLY_NAME$) => [
+	{
+		label: '$STUDLY_NAME$',
+		icon: 'i-lucide-square-chevron-right',
+		to: '/module/$LOWER_NAME$',
+		permission: '$STUDLY_NAME$.view'
+	},
+];
