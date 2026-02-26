@@ -207,12 +207,12 @@ class AuthenticationController extends Controller
 		return $status === Password::PASSWORD_RESET
 			? response()->json([
 				'success' => true,
-				'message' => 'Password berhasil diperbarui.'
+				'message' => __('Password successfully updated')
 			])
 			: response()->json(
 				[
 					'success' => false,
-					'message' => 'Token tidak valid.'
+					'message' => __('Invalid token')
 				],
 				400
 			);
